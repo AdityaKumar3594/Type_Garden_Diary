@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Type Garden — Daily Diary</title>
+  <meta name="description" content="Type Garden: a private, typographic daily diary where your words bloom into flowers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="cv"></canvas>
+    <input id="inp" aria-label="Type to grow a garden" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="bar">
+      <div id="hints">
+        <span class="fi">type to grow</span>
+        <span class="co">tap to type</span>
+        <span>space cuts</span>
+        <span class="fi">backspace withers</span>
+        <span class="co">&#x232B; withers</span>
+        <span id="wc" class="wc"></span>
+        <span id="st"></span>
+      </div>
+      <div id="ctrls">
+        <div id="pal"></div>
+        <button class="b" id="focus-btn" title="Focus Mode (F)" aria-label="Toggle Focus Mode">Focus</button>
+        <button class="b" id="png">PNG</button>
+        <button class="b" id="svg">SVG</button>
+        <button class="b icon-btn" id="help-btn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="top" hidden>
+    <div class="l">
+      <span id="who"></span>
+      <span id="dt"></span>
+    </div>
+    <div class="r">
+      <button class="b" id="days">Days</button>
+      <button class="b" id="out">Log out</button>
+    </div>
+  </div>
+
+  <aside id="drawer" hidden>
+    <div class="dh">
+      <b>Your days</b>
+      <button class="b" id="dx">Close</button>
+    </div>
+    <div id="dl"></div>
+  </aside>
+
+  <!-- Find bar -->
+  <div id="find-bar" hidden role="search" aria-label="Find in entry">
+    <input id="find-inp" placeholder="Find in entry…" autocomplete="off" spellcheck="false" aria-label="Search text">
+    <span id="find-info"></span>
+    <button class="b icon-btn" id="find-prev" title="Previous match" aria-label="Previous match">&#8593;</button>
+    <button class="b icon-btn" id="find-next" title="Next match" aria-label="Next match">&#8595;</button>
+    <button class="b icon-btn" id="find-close" title="Close (Esc)" aria-label="Close find">&#x2715;</button>
+  </div>
+
+  <!-- Keyboard shortcuts help modal -->
+  <div id="help-modal" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div id="help-box">
+      <div class="help-head">
+        <span class="help-title">Keyboard Shortcuts</span>
+        <button class="b icon-btn" id="help-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="help-section">
+        <h3>Writing</h3>
+        <table class="help-table">
+          <tr><td>Type</td><td>Grow flowers</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Cut stem · separate word</td></tr>
+          <tr><td><kbd>⌫</kbd> Backspace</td><td>Wither last letter</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Next line</td></tr>
+          <tr><td><kbd>Shift</kbd><kbd>Enter</kbd></td><td>New paragraph</td></tr>
+        </table>
+      </div>
+      <div class="help-section">
+        <h3>Editing</h3>
+        <table class="help-table">
+          <tr><td><kbd>Ctrl</kbd><kbd>Z</kbd></td><td>Undo</td></tr>
+          <tr><td><kbd>Ctrl</kbd><kbd>Y</kbd> / <kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>Z</kbd></td><td>Redo</td></tr>
+          <tr><td><kbd>Ctrl</kbd><kbd>S</kbd></td><td>Save now</td></tr>
+          <tr><td><kbd>Ctrl</kbd><kbd>F</kbd></td><td>Find in entry</td></tr>
+        </table>
+      </div>
+      <div class="help-section">
+        <h3>View</h3>
+        <table class="help-table">
+          <tr><td><kbd>F</kbd></td><td>Toggle Focus Mode</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close overlay / exit Focus Mode</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Open this help</td></tr>
+        </table>
+      </div>
+      <div class="help-section">
+        <h3>Export</h3>
+        <table class="help-table">
+          <tr><td><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>S</kbd></td><td>Save as SVG</td></tr>
+        </table>
+      </div>
+      <p class="help-note">Mac users: use <kbd>⌘</kbd> in place of <kbd>Ctrl</kbd>.</p>
+    </div>
+  </div>
+
+  <div id="auth">
+    <form id="af">
+      <h1>Type Garden</h1>
+      <p>Your private daily diary.</p>
+      <input id="u" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="username" required>
+      <input id="p" type="password" autocomplete="current-password" placeholder="password" required>
+      <div id="er" role="alert"></div>
+      <button class="b" id="go">Log in</button>
+      <button type="button" id="sw">New here? Create account</button>
+    </form>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
