@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "frontend",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://3.108.238.174/api/:path*"
+    }
+  ]
+}
