@@ -70,6 +70,7 @@ canvas {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 #pal {
@@ -119,6 +120,50 @@ canvas {
   color: #fff;
 }
 
+/* Dropdown Select Controls */
+.sel-btn {
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: inherit;
+  font: inherit;
+  padding: 8px 28px 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%23888888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  font-size: 12px;
+  line-height: normal;
+}
+
+.sel-btn:hover,
+.sel-btn:focus {
+  border-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+}
+
+.sel-btn option {
+  background: #181818;
+  color: #eeeeee;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* Individual font family options preview */
+.font-opt-playfair { font-family: 'Playfair Display', Georgia, serif; }
+.font-opt-cormorant { font-family: 'Cormorant Garamond', 'Times New Roman', serif; }
+.font-opt-fraunces { font-family: 'Fraunces', Georgia, serif; }
+.font-opt-cinzel { font-family: 'Cinzel', 'Times New Roman', serif; }
+.font-opt-montserrat { font-family: 'Montserrat', sans-serif; }
+.font-opt-caveat { font-family: 'Caveat', cursive, sans-serif; font-size: 15px; }
+.font-opt-dancing { font-family: 'Dancing Script', cursive, sans-serif; font-size: 15px; }
+.font-opt-mono { font-family: 'DM Mono', monospace; }
+
 .co {
   display: none;
 }
@@ -133,13 +178,28 @@ canvas {
 }
 
 @media (max-width: 600px) {
+  #bar {
+    gap: 10px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
   #hints {
     gap: 12px;
     font-size: 11px;
+    width: 100%;
   }
   #ctrls {
     flex: 1 1 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .sel-btn {
+    padding: 6px 20px 6px 9px;
+    font-size: 11px;
+    background-position: right 6px center;
+  }
+  .b {
+    padding: 6px 10px;
+    font-size: 11px;
   }
   #pal {
     gap: 4px;

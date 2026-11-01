@@ -1,4 +1,62 @@
 
+const FONTS = {
+  playfair: {
+    name: 'Playfair Display',
+    family: '"Playfair Display", Georgia, serif',
+    svgFamily: 'Playfair Display, Georgia, serif',
+    weight: '700'
+  },
+  cormorant: {
+    name: 'Cormorant Garamond',
+    family: '"Cormorant Garamond", "Times New Roman", serif',
+    svgFamily: 'Cormorant Garamond, Times New Roman, serif',
+    weight: '700'
+  },
+  fraunces: {
+    name: 'Fraunces',
+    family: '"Fraunces", Georgia, serif',
+    svgFamily: 'Fraunces, Georgia, serif',
+    weight: '700'
+  },
+  cinzel: {
+    name: 'Cinzel',
+    family: '"Cinzel", "Times New Roman", serif',
+    svgFamily: 'Cinzel, Times New Roman, serif',
+    weight: '700'
+  },
+  montserrat: {
+    name: 'Montserrat',
+    family: '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    svgFamily: 'Montserrat, sans-serif',
+    weight: '700'
+  },
+  caveat: {
+    name: 'Caveat',
+    family: '"Caveat", cursive, sans-serif',
+    svgFamily: 'Caveat, cursive, sans-serif',
+    weight: '700'
+  },
+  dancing: {
+    name: 'Dancing Script',
+    family: '"Dancing Script", cursive, sans-serif',
+    svgFamily: 'Dancing Script, cursive, sans-serif',
+    weight: '700'
+  },
+  mono: {
+    name: 'DM Mono',
+    family: '"DM Mono", ui-monospace, monospace',
+    svgFamily: 'DM Mono, monospace',
+    weight: '500'
+  }
+};
+
+const FONT_SIZES = {
+  small: { name: 'Size: Small', scale: 0.75 },
+  medium: { name: 'Size: Medium', scale: 1.0 },
+  large: { name: 'Size: Large', scale: 1.25 },
+  xlarge: { name: 'Size: Extra Large', scale: 1.55 }
+};
+
 const F = '"Playfair Display",Georgia,serif';
 const SENT = '\u200b';
 // name, background, flower, stem & leaf, flower line, type
@@ -22,6 +80,13 @@ class Garden {
     this.cv = document.getElementById('cv'); this.inp = document.getElementById('inp');
     this.g = this.cv.getContext('2d');
     this.palette = 0; this.locked = true; this.letters = []; this.uid = 1; this.cache = {}; this.Sd = 0; this.St = 0; this.wrapped = false;
+    this.fontKey = 'playfair'; this.sizeKey = 'medium'; this.sizeScale = 1.0;
+    try {
+      const sf = localStorage.getItem('tg_font');
+      if (sf && FONTS[sf]) this.fontKey = sf;
+      const ss = localStorage.getItem('tg_size');
+      if (ss && FONT_SIZES[ss]) { this.sizeKey = ss; this.sizeScale = FONT_SIZES[ss].scale; }
+    } catch (_) {}
     this._history = []; this._histIdx = -1; // undo/redo
     this.t0 = performance.now(); this.lastKey = 0; this.fa = {}; this.mx = null; this.flies = []; this.perch = [];
     this.iv = SENT; this.inp.value = SENT;
@@ -39,18 +104,71 @@ class Garden {
     const app = document.getElementById('app');
     app.addEventListener('pointerdown', e => {
       const touch = e.pointerType && e.pointerType !== 'mouse', onCv = e.target === this.cv;
-      if (touch) { if (e.cancelable && (onCv || e.target.closest('button'))) e.preventDefault(); }
-      else this.inp.focus({ preventScroll: true });
+      if (touch) {
+        if (e.cancelable && (onCv || e.target.closest('button') || e.target.closest('select'))) e.preventDefault();
+      } else {
+        if (!e.target.closest('select') && !e.target.closest('button')) {
+          this.inp.focus({ preventScroll: true });
+        }
+      }
       if (onCv) this.spawnFly(e.clientX, e.clientY);
     });
     app.addEventListener('click', e => { if (this.ptype !== 'mouse' && e.target === this.cv) this.inp.focus({ preventScroll: true }); });
     document.getElementById('png').onclick = () => { this.savePNG(); this.refocus(); };
     document.getElementById('svg').onclick = () => { this.saveSVG(); this.refocus(); };
+    this.setupDropdowns();
     this.buildPal(); this.applyPal();
     this.resize();
-    if (document.fonts) document.fonts.load(`700 100px ${F}`).then(() => { this.cache = {}; this.layout(); }).catch(() => {});
+    this.loadFont(this.fontKey);
     const loop = () => { requestAnimationFrame(loop); this.frame(); }; loop();
     if (!this.touch) setTimeout(() => this.inp.focus({ preventScroll: true }), 50);
+  }
+  getFontConfig() { return FONTS[this.fontKey] || FONTS.playfair; }
+  getFontString(size) { const f = this.getFontConfig(); return `${f.weight} ${size}px ${f.family}`; }
+  loadFont(fontKey) {
+    const f = FONTS[fontKey] || FONTS.playfair;
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load(`${f.weight} 100px ${f.family}`).then(() => {
+        this.cache = {}; this.layout(true);
+      }).catch(() => {});
+    }
+  }
+  setFont(fontKey, save = true) {
+    if (!FONTS[fontKey]) fontKey = 'playfair';
+    this.fontKey = fontKey;
+    this.cache = {};
+    if (save) { try { localStorage.setItem('tg_font', fontKey); } catch (_) {} }
+    const sel = document.getElementById('font-select');
+    if (sel) {
+      if (sel.value !== fontKey) sel.value = fontKey;
+      sel.style.fontFamily = this.getFontConfig().family;
+    }
+    this.loadFont(fontKey);
+    this.layout(true);
+  }
+  setFontSize(sizeKey, save = true) {
+    if (!FONT_SIZES[sizeKey]) sizeKey = 'medium';
+    this.sizeKey = sizeKey;
+    this.sizeScale = FONT_SIZES[sizeKey].scale;
+    if (save) { try { localStorage.setItem('tg_size', sizeKey); } catch (_) {} }
+    const sel = document.getElementById('size-select');
+    if (sel && sel.value !== sizeKey) sel.value = sizeKey;
+    this.layout(false);
+  }
+  setupDropdowns() {
+    const fontSel = document.getElementById('font-select');
+    if (fontSel) {
+      fontSel.value = this.fontKey;
+      fontSel.style.fontFamily = this.getFontConfig().family;
+      fontSel.addEventListener('change', () => { this.setFont(fontSel.value); this.refocus(); });
+      fontSel.addEventListener('pointerdown', e => e.stopPropagation());
+    }
+    const sizeSel = document.getElementById('size-select');
+    if (sizeSel) {
+      sizeSel.value = this.sizeKey;
+      sizeSel.addEventListener('change', () => { this.setFontSize(sizeSel.value); this.refocus(); });
+      sizeSel.addEventListener('pointerdown', e => e.stopPropagation());
+    }
   }
   refocus() { if (this.ptype === 'mouse') this.inp.focus({ preventScroll: true }); }
   pal() { const p = PAL[this.palette]; return { bg: p[1], C: { red: p[2], blue: p[3], line: p[4], text: p[5], vein: p[1] } }; }
@@ -108,7 +226,7 @@ class Garden {
       fill: (p, col) => { g.beginPath(); this.path(g, p, true); g.fillStyle = col; g.fill(); },
       stroke: (p, col, w) => { g.beginPath(); this.path(g, p, false); g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round'; g.stroke(); },
       rect: (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); },
-      text: (ch, x, y, S, col) => { g.font = `700 ${S}px ${F}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.fillStyle = col; g.fillText(ch, x, y); }
+      text: (ch, x, y, S, col) => { g.font = this.getFontString(S); g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.fillStyle = col; g.fillText(ch, x, y); }
     };
   }
   vine(base, dir, len, amp, waves, ph, bend, n) {
@@ -152,12 +270,13 @@ class Garden {
   mw(ch) {
     if (ch === '\n') return 0;
     if (this.cache[ch] != null) return this.cache[ch];
-    this.g.font = `700 100px ${F}`;
+    this.g.font = this.getFontString(100);
     let w = this.g.measureText(ch).width / 100; if (ch === ' ') w *= 1.4;
     return (this.cache[ch] = w);
   }
   layoutCore(A, W, H, prevWrapped) {
-    const maxW = W * 0.8, S0 = H * 0.28, LH = 2.0, ws = A.map(l => this.mw(l.ch));
+    const scale = this.sizeScale || 1.0;
+    const maxW = W * 0.8, S0 = H * 0.28 * scale, LH = 2.0, ws = A.map(l => this.mw(l.ch));
     const words = []; let cur = null;
     A.forEach((l, i) => {
       if (l.ch === '\n') {
@@ -204,11 +323,12 @@ class Garden {
     let wrapped = hasNL || (multi && (prevWrapped || lines.length > 1));
     let S = S0;
     if (wrapped) {
-      let lo = Math.max(14, H * 0.025), hi = Math.min(S0, H * 0.18);
+      const maxH = H * 0.82 * (scale < 1.0 ? scale : 1.0);
+      let lo = Math.max(12, H * 0.02 * scale), hi = Math.min(S0, H * 0.18 * scale);
       for (let k = 0; k < 24; k++) {
         const mid = (lo + hi) / 2, ls = wrap(mid);
         const fitsW = ls.every(li => lineW(li, mid) <= maxW);
-        const fitsH = ls.length * LH * mid <= H * 0.82;
+        const fitsH = ls.length * LH * mid <= maxH;
         if (fitsW && fitsH) lo = mid; else hi = mid;
       }
       S = lo;
@@ -709,14 +829,16 @@ class Garden {
     const parts = [], n = v => Math.round(v * 100) / 100;
     const pb = () => ({ d: '', moveTo(x, y) { this.d += `M${n(x)} ${n(y)}`; }, lineTo(x, y) { this.d += `L${n(x)} ${n(y)}`; }, quadraticCurveTo(a, b, x, y) { this.d += `Q${n(a)} ${n(b)} ${n(x)} ${n(y)}`; }, closePath() { this.d += 'Z'; } });
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const fontCfg = this.getFontConfig();
     const B = {
       fill: (p, col) => { const b = pb(); this.path(b, p, true); parts.push(`<path d="${b.d}" fill="${col}"/>`); },
       stroke: (p, col, w) => { const b = pb(); this.path(b, p, false); parts.push(`<path d="${b.d}" fill="none" stroke="${col}" stroke-width="${n(w)}" stroke-linecap="round" stroke-linejoin="round"/>`); },
       rect: () => {},
-      text: (ch, x, y, S, col) => parts.push(`<text x="${n(x)}" y="${n(y)}" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="${n(S)}" fill="${col}">${esc(ch)}</text>`)
+      text: (ch, x, y, S, col) => parts.push(`<text x="${n(x)}" y="${n(y)}" text-anchor="middle" font-family="${fontCfg.svgFamily}" font-weight="${fontCfg.weight}" font-size="${n(S)}" fill="${col}">${esc(ch)}</text>`)
     };
     this.render(B, performance.now(), this.mainState());
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${n(this.W)}" height="${n(this.H)}" viewBox="0 0 ${n(this.W)} ${n(this.H)}"><rect width="100%" height="100%" fill="${this.pal().bg}"/>${parts.join('')}</svg>`;
+    const fontImport = `@import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontCfg.name).replace(/%20/g, '+')}:wght@${fontCfg.weight}&amp;display=swap');`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${n(this.W)}" height="${n(this.H)}" viewBox="0 0 ${n(this.W)} ${n(this.H)}"><defs><style>${fontImport}</style></defs><rect width="100%" height="100%" fill="${this.pal().bg}"/>${parts.join('')}</svg>`;
     this.dl(new Blob([svg], { type: 'image/svg+xml' }), 'garden.svg');
   }
 }

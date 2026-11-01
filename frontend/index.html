@@ -6,7 +6,8 @@
   <title>Type Garden — Daily Diary</title>
   <meta name="description" content="Type Garden: a private, typographic daily diary where your words bloom into flowers.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=DM+Mono:wght@400;500&family=Dancing+Script:wght@700&family=Fraunces:wght@700&family=Montserrat:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -24,6 +25,22 @@
         <span id="st"></span>
       </div>
       <div id="ctrls">
+        <select id="font-select" class="b sel-btn" title="Font Family" aria-label="Font Family">
+          <option value="playfair" class="font-opt-playfair">Playfair Display</option>
+          <option value="cormorant" class="font-opt-cormorant">Cormorant Garamond</option>
+          <option value="fraunces" class="font-opt-fraunces">Fraunces</option>
+          <option value="cinzel" class="font-opt-cinzel">Cinzel</option>
+          <option value="montserrat" class="font-opt-montserrat">Montserrat</option>
+          <option value="caveat" class="font-opt-caveat">Caveat</option>
+          <option value="dancing" class="font-opt-dancing">Dancing Script</option>
+          <option value="mono" class="font-opt-mono">DM Mono</option>
+        </select>
+        <select id="size-select" class="b sel-btn" title="Font Size" aria-label="Font Size">
+          <option value="small">Size: Small</option>
+          <option value="medium" selected>Size: Medium</option>
+          <option value="large">Size: Large</option>
+          <option value="xlarge">Size: Extra Large</option>
+        </select>
         <div id="pal"></div>
         <button class="b" id="focus-btn" title="Focus Mode (F)" aria-label="Toggle Focus Mode">Focus</button>
         <button class="b" id="png">PNG</button>
